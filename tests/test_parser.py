@@ -110,9 +110,9 @@ class TestParseRecipeContent:
     def test_get_recipe_img_path(self, get_test_main_page, get_test_recipe_link):
         assert get_recipe_img_path(get_test_main_page, get_test_recipe_link) == 'img/hauptgang/chilliconcarne.jpg'
 
-    def test_get_parsed_recipe(self, get_test_recipe_link, get_test_recipe_link_corrupt):
-        assert get_parsed_recipe(get_test_recipe_link_corrupt) is None
-        assert get_parsed_recipe(get_test_recipe_link) == {'difficulty': 'medium',
+    def test_get_parsed_recipe(self, get_test_recipe_link, get_test_recipe_link_corrupt, get_test_main_page):
+        assert get_parsed_recipe(get_test_recipe_link_corrupt, get_test_main_page) is None
+        assert get_parsed_recipe(get_test_recipe_link, get_test_main_page) == {'difficulty': 'medium',
                                                            'img_path': 'img/hauptgang/chilliconcarne.jpg',
                                                            'ingredients': [{'name': 'Peperoni (gelb)', 'quantity': '1'},
                                                                            {'name': 'Zwiebel', 'quantity': '1'},

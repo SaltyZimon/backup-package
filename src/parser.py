@@ -195,12 +195,11 @@ def get_recipe_img_path(main_page: str, link: str) -> str:
     return img_path
 
 
-def get_parsed_recipe(recipe_link: str) -> Dict:
+def get_parsed_recipe(recipe_link: str, main_page: str) -> Dict:
     if not get_page_content(recipe_link):
         print(f"{recipe_link} is corrupt")
     else:
         recipe = get_page_content(recipe_link)
-        main_page = get_page_content("https://storage.googleapis.com/www.selinaschoice.ch/index.html")
 
         title = get_recipe_title(recipe)
         recipe_class = get_category_from_recipe(main_page, recipe_link)
