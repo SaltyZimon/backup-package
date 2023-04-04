@@ -225,11 +225,41 @@ def get_parsed_recipe(recipe_link: str, main_page: str) -> Dict:
         return recipe_dict
 
 
+"""Create Folder Structure"""
+
+
+def create_folders():
+    """
+    Creates the main and subfolders for recipes and img.
+    """
+    os.chdir("..")
+    try:
+        os.mkdir("recipes")
+        os.mkdir("img")
+    except FileExistsError:
+        print("Directory recipe and img already exists")
+
+    for category in allowed_categories:
+        dirName = category
+        try:
+            # create folders recipe
+            os.chdir("./recipes")
+            os.mkdir(dirName)
+            # create img folders
+            os.chdir("../img")
+            os.mkdir(dirName)
+            os.chdir("..")
+        except FileExistsError:
+            print("Directory ", dirName, " already exists")
+    os.chdir("./src")
+    print(os.getcwd())
+
+
 """Save a recipe"""
 
 
 # ToDo
-#  - move main_page in get_parsed_recipe out of function and in as parameter
+#  - function create_folders img/{recipe_class} and recipe/{recipe_class}
 #  - make the backup function work
 #  - provide a function, that saves the img from the recipe correct:
 #  - recipes/img/{category}/{img_name}.jpg -> img_name = chili_con_simon.jpg
