@@ -190,7 +190,8 @@ def get_recipe_img_path(main_page: str, link: str) -> str:
     """
     specific_recipe = main_page.find("a", href=link)
     img = specific_recipe.find("img")
-    img_path = img.get("src")
+    img_path_raw = img.get("src")
+    img_path = img_path_raw.replace("\\", "/")
     return img_path
 
 
@@ -229,8 +230,9 @@ def get_parsed_recipe(recipe_link: str) -> Dict:
 
 
 # ToDo
+#  - move main_page in get_parsed_recipe out of function and in as parameter
 #  - make the backup function work
-#  - provide a function, that saves the img from ther ecipe correct:
+#  - provide a function, that saves the img from the recipe correct:
 #  - recipes/img/{category}/{img_name}.jpg -> img_name = chili_con_simon.jpg
 
 def save_recipe(recipe=Dict) -> json:

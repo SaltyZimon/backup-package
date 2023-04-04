@@ -108,12 +108,12 @@ class TestParseRecipeContent:
         assert get_category_from_recipe(get_test_main_page, get_test_recipe_link) == "hauptgang"
 
     def test_get_recipe_img_path(self, get_test_main_page, get_test_recipe_link):
-        assert get_recipe_img_path(get_test_main_page, get_test_recipe_link) == 'img\\hauptgang\\chilliconcarne.jpg'
+        assert get_recipe_img_path(get_test_main_page, get_test_recipe_link) == 'img/hauptgang/chilliconcarne.jpg'
 
     def test_get_parsed_recipe(self, get_test_recipe_link, get_test_recipe_link_corrupt):
         assert get_parsed_recipe(get_test_recipe_link_corrupt) is None
         assert get_parsed_recipe(get_test_recipe_link) == {'difficulty': 'medium',
-                                                           'img_path': 'img\\hauptgang\\chilliconcarne.jpg',
+                                                           'img_path': 'img/hauptgang/chilliconcarne.jpg',
                                                            'ingredients': [{'name': 'Peperoni (gelb)', 'quantity': '1'},
                                                                            {'name': 'Zwiebel', 'quantity': '1'},
                                                                            {'name': 'Knoblauch', 'quantity': '1 Zehe'},
