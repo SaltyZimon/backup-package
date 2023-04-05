@@ -195,7 +195,7 @@ def get_recipe_img_path(main_page: str, link: str) -> str:
     return img_path
 
 
-def get_parsed_recipe(recipe_link: str, main_page: str) -> Dict:
+def get_parsed_recipe(main_page: str, recipe_link: str) -> Dict:
     if not get_page_content(recipe_link):
         print(f"{recipe_link} is corrupt")
     else:
@@ -297,30 +297,21 @@ def save_img(recipe: Dict):
     os.chdir("../../src")
 
 
-# ToDo
-#  - make the backup function work
 """Top Level Function for Backup"""
 
 
-def backup_recipe(main_page: str, link: str):
-    if not get_page_content(link):
-        print(f"{link} is corrupt")
-    else:
-        os.chdir("../recipes")
-        dirName = get_category_from_recipe(main_page, link)
-        recipe = get_parsed_recipe(main_page, link)
-        try:
-            # Create target Directory
-            os.mkdir(dirName)
-        except FileExistsError:
-            print("Directory ", dirName, " already exists")
+def backup_website(main_link: str):
+    """
+    Function that makes a backup from the full page run it with:
+    backup_website("https://storage.googleapis.com/www.selinaschoice.ch/index.html")
+    :param main_link:
+    :return:
+    """
+    main_page = get_page_content(main_link)
+    all_recipe_links = get_links_to_scrape(main_page)
+    for recipe_link in all_recipe_links:
+        recipe = get_parsed_recipe(main_page, recipe_link)
+        print(recipe)
         save_recipe(recipe)
-
-
-def backup_website(main_page: str, category=None):
-    if category is None:
-        raw_recipes = get_links_to_scrape(main_page, allowed_categories)
-    else:
-        raw_recipes = get_links_to_scrape(main_page, category)
-    for recipe in raw_recipes:
-        backup_recipe(recipe)
+        save_img(recipe)
+    print(report)
