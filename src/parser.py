@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from re import sub
 from typing import List, Dict
 
 import requests
@@ -26,8 +27,6 @@ def get_page_content(link: str) -> str:
         parsed_page = BeautifulSoup(homepage.text, 'html.parser')
         return parsed_page
 
-
-# main_page = get_page_content("https://storage.googleapis.com/www.selinaschoice.ch/index.html")
 
 """Get Links to scrape."""
 
@@ -169,6 +168,7 @@ def get_instructions(recipe: str) -> List[Dict]:
 def get_category_from_recipe(main_page, link: str) -> str:
     """
     Get the one of allowed classes based on the recipe link.
+    :param main_page:
     :param link: str
     :return recipe_class: str
     """
@@ -255,23 +255,51 @@ def create_folders():
     print(os.getcwd())
 
 
-"""Save a recipe"""
+"""Save recipe and img"""
 
 
-# ToDo
-#  - function create_folders img/{recipe_class} and recipe/{recipe_class}
-#  - make the backup function work
-#  - provide a function, that saves the img from the recipe correct:
-#  - recipes/img/{category}/{img_name}.jpg -> img_name = chili_con_simon.jpg
+def save_recipe(recipe: Dict):
+    """
+    Saves a json from a recipe automatically to the right folder and renames it right.
+    :param recipe:
+    :return:
+    """
+    recipe_title = recipe["title"]
+    file_sub_name = '_'.join(
+        sub('([A-Z][a-z]+)', r' \1', sub('([A-Z]+)', r' \1', recipe_title.replace('-', ' '))).split()).lower()
+    filename = file_sub_name + ".json"
+    category = recipe["recipe_class"]
 
-def save_recipe(recipe=Dict) -> json:
-    filename = recipe["title"] + ".json"
-    folder = recipe["recipe_class"]
-    os.chdir(f"../recipes/{folder}")
+    os.chdir(f"../recipes/{category}")
     json_object = json.dumps(recipe, indent=4, ensure_ascii=False)
     with open(filename, "w", encoding="utf-8") as outfile:
         outfile.write(json_object)
     os.chdir("../../src")
+
+
+def save_img(recipe: Dict):
+    """
+    Saves the img from a recipe automatically to the right folder and renames it right.
+    :param recipe: Dict
+    """
+    image_url = recipe["img_path"]
+    recipe_name = recipe["title"]
+    category = recipe["recipe_class"]
+
+    full_url = f"https://storage.googleapis.com/www.selinaschoice.ch/{image_url}"
+
+    img_data = requests.get(full_url).content
+    img_sub_name = '_'.join(
+        sub('([A-Z][a-z]+)', r' \1', sub('([A-Z]+)', r' \1', recipe_name.replace('-', ' '))).split()).lower()
+    os.chdir(f"../img/{category}")
+    with open(f"{img_sub_name}.jpg", 'wb') as handler:
+        handler.write(img_data)
+    os.chdir("../../src")
+
+
+# ToDo
+#  - make the backup function work
+"""Top Level Function for Backup"""
 
 
 def backup_recipe(main_page: str, link: str):
