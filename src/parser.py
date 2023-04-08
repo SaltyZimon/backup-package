@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 from datetime import datetime
 from re import sub
 from typing import List, Dict
@@ -9,6 +10,11 @@ from bs4 import BeautifulSoup
 
 allowed_categories = ["vorspeise", "hauptgang", "dessert", "fruehstueck", "snacks", "brote", "getraenke"]
 report = []
+
+# ToDo
+# Change img path "img_path": "img/getrÃ¤nke/Blodhound_Grapefruit.jpg" no ä,ö,ü.. watch for frühstück
+# Bilder bei Getränke werden aktuell auch nicht gespeichert?
+# Rezepte werden nicht geparst, wie z.B. #https://shortcutapp.io/n/NThkZjdjYmQ0Yzg0NjA1ZmM2MmM2MTI1NmJkNjZhZTA3
 
 """Get and provide Page Content"""
 
@@ -42,7 +48,10 @@ def get_links_from_category(main_page: str, category: List) -> List:
     recipes_by_category = main_page.find_all("div", class_=category)  # a -> div
     for tag in recipes_by_category:
         recipe = tag.a.get('href', None)
-        recipes.append(recipe)
+        if get_page_content(recipe):
+            recipes.append(recipe)
+        else:
+            pass
     return recipes
 
 
@@ -181,7 +190,24 @@ def get_category_from_recipe(main_page, link: str) -> str:
         print(f"The class from recipe: {link} is {recipe_class} and not in {allowed_categories}.")
 
 
-def get_recipe_img_path(main_page: str, link: str) -> str:
+def get_recipe_img_path(main_page: str, link: str, recipe: str) -> str:
+    """
+    Get the img path from a recipe with the recipe link.
+    :param recipe: str
+    :param main_page: str
+    :param link: str
+    :return img_path: str
+    """
+    folder = "img"
+    recipe_class = get_category_from_recipe(main_page, link)
+    recipe_name_raw = get_recipe_title(recipe)
+    file_sub_name = '_'.join(
+        sub('([A-Z][a-z]+)', r' \1', sub('([A-Z]+)', r' \1', recipe_name_raw.replace('-', ' '))).split()).lower()
+    path = f"{folder}/{recipe_class}/{file_sub_name}.jpg"
+    return path
+
+
+def get_old_recipe_img_path(main_page: str, link: str) -> str:
     """
     Get the img path from a recipe with the recipe link.
     :param main_page: str
@@ -204,7 +230,8 @@ def get_parsed_recipe(main_page: str, recipe_link: str) -> Dict:
         title = get_recipe_title(recipe)
         recipe_class = get_category_from_recipe(main_page, recipe_link)
         time_stamp = get_timestamp(recipe)
-        img = get_recipe_img_path(main_page, recipe_link)
+        img = get_recipe_img_path(main_page, recipe_link, recipe)
+        img_path_old = get_old_recipe_img_path(main_page, recipe_link)
         prep_time = get_prep_time(recipe)
         serves = get_serves(recipe)
         difficulty = get_difficulty(recipe)
@@ -216,6 +243,7 @@ def get_parsed_recipe(main_page: str, recipe_link: str) -> Dict:
             "recipe_class": recipe_class,
             "time": time_stamp,
             "img_path": img,
+            "img_path_old": img_path_old,
             "prep_time": prep_time,
             "serves": serves,
             "difficulty": difficulty,
@@ -252,7 +280,6 @@ def create_folders():
         except FileExistsError:
             print("Directory ", dirName, " already exists")
     os.chdir("./src")
-    print(os.getcwd())
 
 
 """Save recipe and img"""
@@ -268,9 +295,12 @@ def save_recipe(recipe: Dict):
     file_sub_name = '_'.join(
         sub('([A-Z][a-z]+)', r' \1', sub('([A-Z]+)', r' \1', recipe_title.replace('-', ' '))).split()).lower()
     filename = file_sub_name + ".json"
+    print(filename)
     category = recipe["recipe_class"]
+    print(category)
 
     os.chdir(f"../recipes/{category}")
+    print(os.getcwd())
     json_object = json.dumps(recipe, indent=4, ensure_ascii=False)
     with open(filename, "w", encoding="utf-8") as outfile:
         outfile.write(json_object)
@@ -282,10 +312,9 @@ def save_img(recipe: Dict):
     Saves the img from a recipe automatically to the right folder and renames it right.
     :param recipe: Dict
     """
-    image_url = recipe["img_path"]
+    image_url = recipe["img_path_old"]
     recipe_name = recipe["title"]
     category = recipe["recipe_class"]
-
     full_url = f"https://storage.googleapis.com/www.selinaschoice.ch/{image_url}"
 
     img_data = requests.get(full_url).content
@@ -307,11 +336,12 @@ def backup_website(main_link: str):
     :param main_link:
     :return:
     """
+    create_folders()
     main_page = get_page_content(main_link)
     all_recipe_links = get_links_to_scrape(main_page)
     for recipe_link in all_recipe_links:
         recipe = get_parsed_recipe(main_page, recipe_link)
-        print(recipe)
         save_recipe(recipe)
         save_img(recipe)
+        print(recipe_link)
     print(report)
