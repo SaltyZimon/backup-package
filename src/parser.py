@@ -1,6 +1,6 @@
 import json
 import os
-import pathlib
+import time
 from datetime import datetime
 from re import sub
 from typing import List, Dict
@@ -12,6 +12,7 @@ allowed_categories = ["vorspeise", "hauptgang", "dessert", "fruehstueck", "snack
 report = []
 
 # ToDo
+# Make rezept Klasse and difficulty first letter Upercase
 # Change img path "img_path": "img/getrÃ¤nke/Blodhound_Grapefruit.jpg" no ä,ö,ü.. watch for frühstück
 # Bilder bei Getränke werden aktuell auch nicht gespeichert?
 # Rezepte werden nicht geparst, wie z.B. #https://shortcutapp.io/n/NThkZjdjYmQ0Yzg0NjA1ZmM2MmM2MTI1NmJkNjZhZTA3
