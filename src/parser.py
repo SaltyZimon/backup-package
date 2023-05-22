@@ -330,6 +330,23 @@ def save_img(recipe: Dict):
 """Top Level Function for Backup"""
 
 
+# ToDo make this function work that it returns a Table
+def get_dict_from_all_recipes(main_link: str) -> List[Dict]:
+    """
+    Function to get a list of Dicts, with all recipes in it.
+    :param main_link:
+    :return list[dict]: all recipes
+    """
+    main_page = get_page_content(main_link)
+    all_recipe_links = get_links_to_scrape(main_page)
+    all_parsed_recipes = []
+    for recipe_link in all_recipe_links:
+        recipe = get_parsed_recipe(main_page, recipe_link)
+        all_parsed_recipes.append(recipe)
+        print(all_parsed_recipes)
+    return all_parsed_recipes
+
+
 def backup_website(main_link: str):
     """
     Function that makes a backup from the full page run it with:
